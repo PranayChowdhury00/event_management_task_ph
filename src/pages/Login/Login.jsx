@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaSignInAlt } from 'react-icons/fa';
-
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -40,18 +40,9 @@ const Login = () => {
   if (validateForm()) {
     setIsSubmitting(true);
     try {
-      const response = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
+      const response = await axios.post("http://localhost:5000/login", formData, {
+        withCredentials: true // this is the key part
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to login");
-      }
 
       Swal.fire({
         icon: 'success',
@@ -66,7 +57,7 @@ const Login = () => {
       Swal.fire({
         icon: 'error',
         title: 'Login Failed',
-        text: error.message
+        text: error.response?.data?.message || error.message
       });
     } finally {
       setIsSubmitting(false);
@@ -77,11 +68,8 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md"
+      <div 
+        className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md transform transition-all duration-500 hover:scale-[1.02]"
       >
         <div className="p-8">
           <div className="text-center mb-8">
@@ -163,11 +151,9 @@ const Login = () => {
             </div>
 
             {/* Submit Button */}
-            <motion.button
+            <button
               type="submit"
               disabled={isSubmitting}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center"
             >
               {isSubmitting ? (
@@ -184,7 +170,7 @@ const Login = () => {
                   Sign In
                 </>
               )}
-            </motion.button>
+            </button>
           </form>
 
           <div className="mt-6 text-center">
@@ -196,7 +182,7 @@ const Login = () => {
             </p>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
