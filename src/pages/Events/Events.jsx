@@ -9,23 +9,24 @@ const Events = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const fetchEvents = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/events/filter", {
-        params: {
-          title,
-          startDate: startDate || undefined,
-          endDate: endDate || undefined,
-        },
-        withCredentials: true,
-      });
-      setEvents(res.data);
-    } catch (err) {
-      console.error("Error fetching events", err);
-    }
-  };
-
+  // useEffect with inline fetchEvents to avoid dependency warning
   useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/events/filter", {
+          params: {
+            title,
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
+          },
+          withCredentials: true,
+        });
+        setEvents(res.data);
+      } catch (err) {
+        console.error("Error fetching events", err);
+      }
+    };
+
     fetchEvents();
   }, [title, startDate, endDate]);
 
@@ -43,7 +44,17 @@ const Events = () => {
         timer: 2000,
         showConfirmButton: false,
       });
-      fetchEvents();
+
+      // Refetch events after joining
+      const updated = await axios.get("http://localhost:5000/events/filter", {
+        params: {
+          title,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+        },
+        withCredentials: true,
+      });
+      setEvents(updated.data);
     } catch (err) {
       Swal.fire({
         icon: "error",
