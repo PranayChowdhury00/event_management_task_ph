@@ -7,31 +7,35 @@ const PrivateRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
       try {
         const response = await axios.get("https://event-management-task-ph-backend.onrender.com/check-auth", {
           withCredentials: true
         });
-        if (response.data.authenticated) {
-          setAuthenticated(true);
-        } else {
-          setAuthenticated(false);
+        if (isMounted) {
+          setAuthenticated(response.data.authenticated);
         }
       } catch (err) {
         console.error("Auth check failed:", err);
-        setAuthenticated(false);
+        if (isMounted) setAuthenticated(false);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <span className="loading loading-spinner loading-lg"></span>
+        <span className="loading loading-spinner loading-lg text-indigo-500">Loading...</span>
       </div>
     );
   }
