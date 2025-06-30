@@ -9,6 +9,7 @@ import PrivateRoute from "../components/PrivateRoute";
 import Events from "../pages/Events/Events";
 import AddEvent from "../pages/AddEvent/AddEvent";
 import MyEvents from "../pages/MyEvents/MyEvents";
+import Home from "../pages/Home/Home";
 
 
 const router = createBrowserRouter([
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <MainLayout></MainLayout>,
     children:[
+      {
+        path:'/',
+        element:<Home></Home>
+      },
       {
         path:"/events",
         element:<PrivateRoute>
