@@ -15,7 +15,7 @@ const Navbar = () => {
   useEffect(() => {
   const checkAuth = async () => {
     try {
-      const response = await axios.get('https://event-management-task-ph-backend.onrender.com//check-auth', {
+      const response = await axios.get('https://event-management-task-ph-backend.onrender.com/check-auth', {
         withCredentials: true // VERY IMPORTANT: sends the session cookie
       });
 
@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
   try {
-    await axios.post('https://event-management-task-ph-backend.onrender.com//logout', {}, { withCredentials: true });
+    await axios.post('https://event-management-task-ph-backend.onrender.com/logout', {}, { withCredentials: true });
     setUser(null);
     navigate('/');
   } catch (err) {

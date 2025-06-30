@@ -19,7 +19,7 @@ const MyEvents = () => {
     try {
       setLoading(true);
       setError('');
-      const response = await axios.get('https://event-management-task-ph-backend.onrender.com//my-events', {
+      const response = await axios.get('https://event-management-task-ph-backend.onrender.com/my-events', {
         withCredentials: true
       });
       setEvents(response.data);
@@ -49,7 +49,7 @@ const MyEvents = () => {
      
       setEvents(prevEvents => prevEvents.filter(event => event._id !== eventToDelete));
       
-      await axios.delete(`https://event-management-task-ph-backend.onrender.com//events/${eventToDelete}`, {
+      await axios.delete(`https://event-management-task-ph-backend.onrender.com/events/${eventToDelete}`, {
         withCredentials: true
       });
     } catch (err) {
@@ -88,7 +88,7 @@ const MyEvents = () => {
     );
 
     await axios.patch(
-      `https://event-management-task-ph-backend.onrender.com//events/${updatedEvent._id}`,
+      `https://event-management-task-ph-backend.onrender.com/events/${updatedEvent._id}`,
       {
         ...changes,
         date: changes.dateTime ? format(parseISO(changes.dateTime), 'yyyy-MM-dd') : undefined,

@@ -13,7 +13,7 @@ const Events = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("https://event-management-task-ph-backend.onrender.com//events/filter", {
+        const res = await axios.get("https://event-management-task-ph-backend.onrender.comevents/filter", {
           params: {
             title,
             startDate: startDate || undefined,
@@ -33,7 +33,7 @@ const Events = () => {
   const handleJoin = async (id) => {
     try {
       const res = await axios.post(
-        `https://event-management-task-ph-backend.onrender.com//events/${id}/join`,
+        `https://event-management-task-ph-backend.onrender.com/events/${id}/join`,
         {},
         { withCredentials: true }
       );
@@ -46,7 +46,7 @@ const Events = () => {
       });
 
       // Refetch events after joining
-      const updated = await axios.get("https://event-management-task-ph-backend.onrender.com//events/filter", {
+      const updated = await axios.get("https://event-management-task-ph-backend.onrender.com/events/filter", {
         params: {
           title,
           startDate: startDate || undefined,

@@ -79,7 +79,7 @@ const Register = () => {
           photoURL = await uploadImageToImgbb(selectedFile);
         }
 
-        const response = await fetch("https://event-management-task-ph-backend.onrender.com//users", {
+        const response = await fetch("https://event-management-task-ph-backend.onrender.com/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...formData, photoURL })
