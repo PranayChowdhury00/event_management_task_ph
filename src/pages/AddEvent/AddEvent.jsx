@@ -37,7 +37,7 @@ const AddEvent = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await axios.post('http://localhost:5000/events', {
+      const response = await axios.post('https://event-management-task-ph-backend.onrender.com//events', {
         ...eventData,
         // Combine date and time into a single ISO string
         dateTime: new Date(`${eventData.date}T${eventData.time}`).toISOString()

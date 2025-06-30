@@ -9,7 +9,7 @@ const PrivateRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/check-auth", {
+        const response = await axios.get("https://event-management-task-ph-backend.onrender.com//check-auth", {
           withCredentials: true
         });
         if (response.data.authenticated) {
