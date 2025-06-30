@@ -11,17 +11,18 @@ const MyEvents = () => {
   const [eventToDelete, setEventToDelete] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [eventToEdit, setEventToEdit] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch user's events - moved outside useEffect for reuse
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      setError('');
       const response = await axios.get('http://localhost:5000/my-events', {
         withCredentials: true
       });
       setEvents(response.data);
-      setError('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch events');
     } finally {
@@ -33,57 +34,80 @@ const MyEvents = () => {
     fetchEvents();
   }, []);
 
-  // Handle delete confirmation
+  
   const confirmDelete = (eventId) => {
     setEventToDelete(eventId);
     setShowDeleteModal(true);
   };
 
-  // Handle actual deletion
   const handleDelete = async () => {
     try {
+      setError('');
+      setIsDeleting(true);
       setShowDeleteModal(false);
+      
+     
+      setEvents(prevEvents => prevEvents.filter(event => event._id !== eventToDelete));
+      
       await axios.delete(`http://localhost:5000/events/${eventToDelete}`, {
         withCredentials: true
       });
-      await fetchEvents(); // refresh events list after delete
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete event');
+      // Revert if failed
+      await fetchEvents();
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  // Handle edit
+ 
   const handleEdit = (event) => {
     setEventToEdit(event);
     setShowEditModal(true);
   };
 
-  // Handle update submission
+ 
   const handleUpdate = async (updatedEvent) => {
-    try {
-      const changes = {};
-      Object.keys(updatedEvent).forEach(key => {
-        if (updatedEvent[key] !== eventToEdit[key]) {
-          changes[key] = updatedEvent[key];
-        }
-      });
+  try {
+    setError('');
+    setIsUpdating(true);
+      
+    const changes = {};
+    Object.keys(updatedEvent).forEach(key => {
+      if (updatedEvent[key] !== eventToEdit[key]) {
+        changes[key] = updatedEvent[key];
+      }
+    });
 
-      await axios.patch(
-        `http://localhost:5000/events/${updatedEvent._id}`,
-        {
-          ...changes,
-          date: changes.dateTime ? format(parseISO(changes.dateTime), 'yyyy-MM-dd') : undefined,
-          time: changes.dateTime ? format(parseISO(changes.dateTime), 'HH:mm') : undefined
-        },
-        { withCredentials: true }
-      );
+  
+    setEvents(prevEvents => 
+      prevEvents.map(event => 
+        event._id === updatedEvent._id ? { ...event, ...updatedEvent } : event
+      )
+    );
 
-      setShowEditModal(false);
-      await fetchEvents(); // refresh events list after update
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update event');
-    }
-  };
+    await axios.patch(
+      `http://localhost:5000/events/${updatedEvent._id}`,
+      {
+        ...changes,
+        date: changes.dateTime ? format(parseISO(changes.dateTime), 'yyyy-MM-dd') : undefined,
+        time: changes.dateTime ? format(parseISO(changes.dateTime), 'HH:mm') : undefined
+      },
+      { withCredentials: true }
+    );
+
+    
+    setShowEditModal(false);
+    setEventToEdit(null); 
+  } catch (err) {
+    setError(err.response?.data?.message || 'Failed to update event');
+   
+    await fetchEvents();
+  } finally {
+    setIsUpdating(false);
+  }
+};
 
   if (loading) {
     return (
@@ -189,9 +213,10 @@ const MyEvents = () => {
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:opacity-50"
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
@@ -204,6 +229,7 @@ const MyEvents = () => {
             event={eventToEdit}
             onClose={() => setShowEditModal(false)}
             onSave={handleUpdate}
+            isUpdating={isUpdating}
           />
         )}
       </div>
@@ -212,7 +238,7 @@ const MyEvents = () => {
 };
 
 // Edit Event Modal Component
-const EditEventModal = ({ event, onClose, onSave }) => {
+const EditEventModal = ({ event, onClose, onSave, isUpdating }) => {
   const [formData, setFormData] = useState({
     title: event.title,
     name: event.name,
@@ -321,15 +347,17 @@ const EditEventModal = ({ event, onClose, onSave }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+              disabled={isUpdating}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+              disabled={isUpdating}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
             >
-              Save Changes
+              {isUpdating ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

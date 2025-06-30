@@ -40,6 +40,7 @@ const Login = () => {
   if (validateForm()) {
     setIsSubmitting(true);
     try {
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.post("http://localhost:5000/login", formData, {
         withCredentials: true // this is the key part
       });
